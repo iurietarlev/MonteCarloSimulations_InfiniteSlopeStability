@@ -1,0 +1,13 @@
+name: Monte-Carlo-Simulations-Infinite-Slope-Stability
+title: Monte-Carlo-Simulations-Infinite-Slope-Stability
+username:
+account: osk849
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 887428
+bundleId: 2444181
+url: https://osk849.shinyapps.io/Monte-Carlo-Simulations-Infinite-Slope-Stability/
+when: 1569421257.48882
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: beta_data.csv|README.md|soil_weight.csv|USER MANUAL.pdf

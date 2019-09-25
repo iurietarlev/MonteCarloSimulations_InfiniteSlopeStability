@@ -38,10 +38,10 @@ sidebarpanel_width = 12
 #UI PART OF THE SCRIPT
 ui <- dashboardPage(skin = "yellow", # yellow color of the header
   dashboardHeader(title = "Monte Carlo Simulation of Slope Failure Probability", titleWidth = 480,
-                  tags$li(div(img(src = 'Shiny_Monte_Carlo.png',
+                  tags$li(a(href="https://www.bath.ac.uk", img(src = 'Shiny_Monte_Carlo.png',
                                   title = "Company Home", height = "40px"),
                               style = "padding-top:5px; padding-bottom:5px;
-                              margin-right:5px;"),
+                              margin-right:0px;"),
                           class = "dropdown")),  # title width and name
     dashboardSidebar(width = 350,
       tags$style(HTML(".sidebar-menu li a { font-size: 20px; }",
@@ -65,13 +65,13 @@ ui <- dashboardPage(skin = "yellow", # yellow color of the header
         #------------------- soil parameters -------------------
         menuItem(startExpanded = F, text = tags$p(style = css_style_head, HTML("Soil Weight (&gamma;)")), tabName = "soil_weight", 
         radioButtons(inputId="soil_choice", label=choice_label, choices=c(choice_const, choice_m_sd, choice_csv), 
-                     selected = choice_csv),
+                     selected = choice_const),
         uiOutput("soil_param_choice"), h5(HTML("&nbsp;"), align = "left")),
         
         #------------------- angle of slope --------------------
         menuItem(startExpanded = F, text = tags$p(style = css_style_head, HTML("Slope angle (&beta;)")), tabName = "slope_angle", 
         radioButtons(inputId="slope_choice", label=choice_label, choices=c(choice_const, choice_m_sd, choice_csv),
-                     selected = choice_csv),
+                     selected = choice_const),
         uiOutput("slope_param_choice"), h5(HTML("&nbsp;"), align = "left")),
         
         #----------- angle of shearing resistance- -------------
@@ -114,8 +114,11 @@ ui <- dashboardPage(skin = "yellow", # yellow color of the header
         h5(withMathJax("$$$$"), align = "left"), # create a gap between the formula and what's below
         h5(HTML("&nbsp;"), align = "left"),
         tags$div(class="Header", checked=NA,
-                 tags$a(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Authors: Iurie Tarlev & Davyd Tamrazov"))
+                 tags$a(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Author: Iurie Tarlev"))
                   ),
+        tags$div(class="Header", checked=NA,
+                 tags$a(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Co-author: Davyd Tamrazov"))
+        ),
         tags$div(class="Header", checked=NA,
                  tags$a(href="https://github.com/osk849/Monte-Carlo-Simulations---Infinite-Slope-Stability.git", HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Click here to access the documentation"))
         ))
@@ -168,7 +171,7 @@ server <- function(input, output, session) {
     input_type_selector(input_choice <- input$slope_choice, csv = choice_csv, m_sd = choice_m_sd,
                         csv_tag = "slope_csv", csv_dist_tag = "slope_csv_dist_type",
                         m_tag = "slope_m", sd_tag = "slope_sd", m_val = "", sd_val = "", 
-                        m_sd_dist_tag = "slope_m_sd_dist_type", const_tag = "slope_const", const_value = "", 
+                        m_sd_dist_tag = "slope_m_sd_dist_type", const_tag = "slope_const", const_value = 18, 
                         dist_choices = distributions_list , selected_m_sd_distr = distributions_list[1], 
                         selected_csv_distr = distributions_list[4])
   })
@@ -341,7 +344,7 @@ server <- function(input, output, session) {
     }
     
     do.call(tabBox, c(tabs, #height = height_tab_box_prob_paper,
-                      width = width_tab_box_prob_paper, title = "Probability Paper",
+                      width = width_tab_box_prob_paper, title = "Probability Paper - for csv type data",
                       id = "prob_paper_tabs"))
   })
   
