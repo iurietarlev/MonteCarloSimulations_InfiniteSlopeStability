@@ -1,8 +1,12 @@
+# --- RENEW RStudio MEMORY --- #
 # rm(list=ls())
-# 
+
+
+# --- SET CURRENT WORKING DIRECTORY --- #
 # setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 # getwd()
 
+# --- LOADING RELEVANT LIBRARIES --- #
 library(shiny)          #shiny allows tranlation of R script into HTML
 library(ggplot2)        #ggplot for plotting graphs and histograms
 library(evd)            #for extreme value distributions (gumbel)
@@ -13,29 +17,26 @@ library(shinydashboard) #shiny dashboard builder
 library(plotly)         #for plotting interactive plots
 
 
-#IMPORTING ALL THE NECESSARY FUNCTIONS CREATED IN ANOTHER FILE
+# --- IMPORTING ALL THE NECESSARY FUNCTIONS CREATED IN ANOTHER FILE --- #
 source("Monte_Carlo_Functions_2.R")
 
-#SOME STYLING PARAMTERS
+# --- SOME STYLING PARAMTERS --- #
 css_style_head = "font-size: 20px; color: white" #font-weight: bold
 choice_label <- "Specify distribution using:"
 choice_csv <- "CSV file"
 choice_m_sd <- "Mean and Standard Deviation"
 choice_const <- "Constant"
-
 mean_label <- "Mean"
 sd_label <- "Standard Deviation"
-
 tabs_panel_title <- "Probability Paper"
 width_tab_box_prob_paper <- 12
 #height_tab_box_prob_paper <- "350px"
-
 distributions_list <- c("", "Uniform", "Normal", "Lognormal", "Gumbel")
 sidebarpanel_width = 12
 
 
 
-#UI PART OF THE SCRIPT
+# --- UI PART OF THE SCRIPT --- #
 ui <- dashboardPage(skin = "yellow", # yellow color of the header
   dashboardHeader(title = "Monte Carlo Simulation of Slope Failure Probability", titleWidth = 480,
                   tags$li(a(href="https://www.bath.ac.uk", img(src = 'Shiny_Monte_Carlo.png',
@@ -58,48 +59,48 @@ ui <- dashboardPage(skin = "yellow", # yellow color of the header
         ), 
       sidebarMenu(
         #----------------- number of iterations ----------------
-        menuItem(startExpanded = TRUE, text = tags$p(style = css_style_head,"Number of Iterations"), tabName = "iter_no",
+        menuItem(startExpanded = T, text = tags$p(style = css_style_head,"Number of Iterations"), tabName = "iter_no",
                  radioButtons(inputId="iter_choice", label="Specify input type", choices=c("Slider input", "Numeric input")),
                  uiOutput("iter_param_choice"), h5(HTML("&nbsp;"), align = "left")),
         
         #------------------- soil parameters -------------------
-        menuItem(startExpanded = F, text = tags$p(style = css_style_head, HTML("Soil Weight (&gamma;)")), tabName = "soil_weight", 
+        menuItem(startExpanded = T, text = tags$p(style = css_style_head, HTML("Soil Weight (&gamma;)")), tabName = "soil_weight", 
         radioButtons(inputId="soil_choice", label=choice_label, choices=c(choice_const, choice_m_sd, choice_csv), 
-                     selected = choice_const),
+                     selected = choice_csv),
         uiOutput("soil_param_choice"), h5(HTML("&nbsp;"), align = "left")),
         
         #------------------- angle of slope --------------------
-        menuItem(startExpanded = F, text = tags$p(style = css_style_head, HTML("Slope angle (&beta;)")), tabName = "slope_angle", 
+        menuItem(startExpanded = T, text = tags$p(style = css_style_head, HTML("Slope angle (&beta;)")), tabName = "slope_angle", 
         radioButtons(inputId="slope_choice", label=choice_label, choices=c(choice_const, choice_m_sd, choice_csv),
-                     selected = choice_const),
+                     selected = choice_csv),
         uiOutput("slope_param_choice"), h5(HTML("&nbsp;"), align = "left")),
         
         #----------- angle of shearing resistance- -------------
-        menuItem(startExpanded = F, text = tags$p(style = css_style_head, HTML("Shear resistance angle (&phi;')")), tabName = "phi_angle",
+        menuItem(startExpanded = T, text = tags$p(style = css_style_head, HTML("Shear resistance angle (&phi;')")), tabName = "phi_angle",
         radioButtons(inputId="phi_choice", label=choice_label, choices=c(choice_const, choice_m_sd, choice_csv),
                      selected = choice_m_sd),
         uiOutput("phi_param_choice"), h5(HTML("&nbsp;"), align = "left")),
         
         #-------------------- cohesion of soil -----------------
-        menuItem(startExpanded = F, text = tags$p(style = css_style_head, HTML("Cohesion of soil (c')")), tabName = "cohesion",
+        menuItem(startExpanded = T, text = tags$p(style = css_style_head, HTML("Cohesion of soil (c')")), tabName = "cohesion",
         radioButtons(inputId="c_choice", label=choice_label, choices=c(choice_const, choice_m_sd, choice_csv),
                      selected = choice_m_sd),
         uiOutput("c_param_choice"), h5(HTML("&nbsp;"), align = "left")),
         
         #------------ ground-water fraction height -------------
-        menuItem(startExpanded = FALSE,text = tags$p(style = css_style_head,HTML("Groundwater fraction height (m)")), tabName = "depth_d",
+        menuItem(startExpanded = T,text = tags$p(style = css_style_head,HTML("Groundwater fraction height (m)")), tabName = "depth_d",
                  radioButtons(inputId="m_choice", label=choice_label, choices=c(choice_const, choice_m_sd, choice_csv),
                               selected = choice_m_sd),
                  uiOutput("m_param_choice"), h5(HTML("&nbsp;"), align = "left")),
         
         #------------------------- depth -----------------------
-        menuItem(startExpanded = FALSE, text = tags$p(style = css_style_head, HTML("Depth (H)")), tabName = "depth_d",
+        menuItem(startExpanded = T, text = tags$p(style = css_style_head, HTML("Depth (H)")), tabName = "depth_d",
         radioButtons(inputId="H_choice", label=choice_label, choices=c(choice_const, choice_m_sd, choice_csv),
                      selected = choice_const),
         uiOutput("H_param_choice"), h5(HTML("&nbsp;"), align = "left")),
         
         #------------------- water unit weight -----------------
-        menuItem(startExpanded = FALSE, text = tags$p(style = css_style_head,HTML("Water Unit Weight (&gamma;<sub>w</sub>)")), tabName = "water_unit_weight",
+        menuItem(startExpanded = T, text = tags$p(style = css_style_head,HTML("Water Unit Weight (&gamma;<sub>w</sub>)")), tabName = "water_unit_weight",
         sliderInput(inputId = "gamma_w", label = "", value = 9.81, min = 9.78, max = 9.83, step = 0.01), h5(HTML("&nbsp;"), align = "left")),
         #numericInput(inputId = "gamma_w", "", value = 9.81),
       
@@ -144,7 +145,7 @@ ui <- dashboardPage(skin = "yellow", # yellow color of the header
       
   ))
 
-#SERVER PART OF THE SCRIPT
+# --- SERVER PART OF THE SCRIPT --- #
 server <- function(input, output, session) {
   
   ##### -----------> RENDERING THE INPUT DISPLAY BASED ON SELECTED INPUT CHOICE <--------------------######
@@ -152,10 +153,7 @@ server <- function(input, output, session) {
     input_type_selector_iter(input_choice <- input$iter_choice, slid = "Slider input", num = "Numeric Input", value = "iter_n")
   })
   
-
-  
-  
-  
+ 
   # ----- soil weight (gamma) -------
   output$soil_param_choice = renderUI({
       input_type_selector(input_choice <- input$soil_choice, csv = choice_csv, m_sd = choice_m_sd,
@@ -173,7 +171,7 @@ server <- function(input, output, session) {
                         m_tag = "slope_m", sd_tag = "slope_sd", m_val = "", sd_val = "", 
                         m_sd_dist_tag = "slope_m_sd_dist_type", const_tag = "slope_const", const_value = 18, 
                         dist_choices = distributions_list , selected_m_sd_distr = distributions_list[1], 
-                        selected_csv_distr = distributions_list[4])
+                        selected_csv_distr = distributions_list[3])
   })
   
   # ----- shear resistance angle (phi) -------
@@ -222,11 +220,18 @@ server <- function(input, output, session) {
   #---> soil weight <----
   output$soil_gf <- renderPlot({
     infile <- input$soil_csv
+    # if (is.null(infile)) {
+    #   # User has not uploaded a file yet
+    #   return(NULL)
+    # }
+    # 
     if (is.null(infile)) {
-      # User has not uploaded a file yet
-      return(NULL)
+      dpath <- "./sample.csv"
+    } else {
+      dpath <- infile$datapath
     }
-    infile <- read.csv(infile$datapath, header = F)$V1
+    
+    infile <- read.csv(dpath, header = F)$V1
     var <- goodness_of_fit(original_df = infile, line_col = "red")
     return(var$four_plots)
    
@@ -236,10 +241,12 @@ server <- function(input, output, session) {
   output$slope_gf <- renderPlot({
     infile <- input$slope_csv
     if (is.null(infile)) {
-      # User has not uploaded a file yet
-      return(NULL)
+      dpath <- "./sample.csv"
+    } else {
+      dpath <- infile$datapath
     }
-    infile <- read.csv(infile$datapath, header = F)$V1
+    
+    infile <- read.csv(dpath, header = F)$V1
     var <- goodness_of_fit(original_df = infile, line_col = "red")
     return(var$four_plots)
   })
@@ -552,8 +559,8 @@ server <- function(input, output, session) {
     colnames(FOS_df) <- c("FOS", "above")
     df <- FOS_df
     
-    P_failure <- round(count_if("FALSE", df$above)/length(df$above)*100, digits = 1)
-    P_failure <- signif(P_failure,3)
+    P_failure <- count_if("FALSE", df$above)/length(df$above)*100
+    P_failure <- signif(P_failure,2)
     
   
     valueBox(
@@ -600,7 +607,7 @@ server <- function(input, output, session) {
     
     df <- FOS_df
     P_failure <- count_if("FALSE", df$above)/length(df$above)*100
-    P_failure <- signif(P_failure, 3)
+    P_failure <- signif(P_failure, 2)
     
     iter_n <- formatC(input$iter_n, format = "d", big.mark = ",")
     comment <- paste("Using infinite slope stability equation and based on", iter_n, " Monte Carlo simulations, there is a", P_failure, "% chance that the slope will fail under the given input parameters.")
@@ -610,6 +617,6 @@ server <- function(input, output, session) {
   
 }
 
-# -------- > RUN THE APPLICATION < ---------- 
+# --- RUN THE APPLICATION --- #
 shinyApp(ui = ui, server = server)
 

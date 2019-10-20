@@ -1,16 +1,18 @@
-
+# --- RENEW RStudio MEMORY --- #
 #rm(list=ls())
 
-# setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-# getwd()
+# --- SET CURRENT WORKING DIRECTORY --- #
+#setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+#getwd()
 
+# --- LOADING RELEVANT LIBRARIES --- #
 library(ggplot2)      #ggplot
 library(evd)          #for extreme value distributions (gumbel)
 library(ggpubr)       #used for ggarrange
 library(pracma)       #practical math for deg2rad
 library(expss)        #used for count_if
 
-#LOCATION AND SHAPE FUNCITONS FOR LOGNORMAL DIST
+# --- LOCATION AND SHAPE FUNCITONS FOR LOGNORMAL DIST --- #
 location <- function(m, sd){
   loc <- log(m^2 / sqrt(sd^2 + m^2))
 }
@@ -20,7 +22,7 @@ shape <- function(m, sd){
 }
 
 
-#FIND MAX AND MIN FOR UNIFORM DIST
+# --- FIND MAX AND MIN FOR UNIFORM DIST --- #
 min_max <- function(e_x, sd){
   a <- rbind(c(1, 1), c(1, -1))
   b <- c(2*e_x, sqrt(4*sd^2)) 
@@ -32,11 +34,11 @@ min_max <- function(e_x, sd){
 }
 
 
-#SCALING THE AXIS TO BE ALL OF THE SAME UNITS
+# --- SCALING THE AXIS TO BE ALL OF THE SAME UNITS --- #
 scaleFUN <- function(x) sprintf("%.1f", x)
 
 
-# DISPLAYS 4 PROBABILITY PAPER PLOTS
+# --- DISPLAYS 4 PROBABILITY PAPER PLOTS --- #
 goodness_of_fit <- function(original_df, line_col){
   themes <- theme(axis.title.y = element_text(size=14),
         axis.title.x = element_text(size=14),
@@ -48,19 +50,17 @@ goodness_of_fit <- function(original_df, line_col){
   x_label <- expression(phi^-1*(p[r]))
   x_label_unif <- expression(p[r])
   y_label <- "numerical value"
-  #---------------------------------> BETA ANGLE DISTRIBUTION <-----------------------------------
+  # ---  variable  distribution  ----
+  # beta was the first variable tested, but this function works for any variable (regardless the name)
   beta_mean <- mean(original_df)
   beta_sd <- sd(original_df)
   
   original_df <- sort(original_df, decreasing = TRUE)
-  original_df
-  
   
   result <- data.frame(matrix(nrow = length(original_df), ncol = 3))
   colnames(result) <- c("observation", "p_r", "phi-1(pr)")
   
   result[1] <- original_df
-  #print(result)
   
   for (i in 1:length(original_df)){
     p_r <- 1-i/(length(original_df)+1)
@@ -68,10 +68,8 @@ goodness_of_fit <- function(original_df, line_col){
     result[i, 2] <- p_r
     result[i, 3] <- inv_norm
   }
-  result
   
-  #-----------log normal-------------
-  
+  #----------- log normal -------------
   #calculate location and shape parameters
   a <- location(beta_mean, beta_sd) 
   b <- shape(beta_mean, beta_sd) 
@@ -84,7 +82,6 @@ goodness_of_fit <- function(original_df, line_col){
     xlab(label = x_label) + ylab(label = y_label) + themes +
     scale_y_continuous(labels=scaleFUN) +
     scale_x_continuous(labels=scaleFUN)
-  #return(log_norm_plot)
 
   #-----------normal-------------
   norm_func <- function(x) beta_mean + beta_sd*x
@@ -95,8 +92,6 @@ goodness_of_fit <- function(original_df, line_col){
     xlab(label = x_label) + ylab(label = y_label) +themes +
     scale_y_continuous(labels=scaleFUN) +
     scale_x_continuous(labels=scaleFUN)
-
-
 
   #---------gumbel---------------
   alpha <- sqrt(6)*beta_sd/pi
@@ -117,15 +112,11 @@ goodness_of_fit <- function(original_df, line_col){
     scale_y_continuous(labels=scaleFUN) +
     scale_x_continuous(labels=scaleFUN)
 
-
   #---------uniform---------------
 
   unif_res <- result
   unif_res <- unif_res[seq(dim(unif_res)[1],1),]
-
-
-
-
+  
   for (i in 1:length(gumb_res$observation)){
     x <- (i)/(length(gumb_res$observation)+1)
     unif_res[i,2] <- x
@@ -156,14 +147,10 @@ goodness_of_fit <- function(original_df, line_col){
   
 }
 
-# df_beta <- read.csv("Group_18.csv", header = F)$V1
-# df_beta
-# goodness_of_fit(df_beta, line_col = "red")
 
-
-
-# Function for different output depending on the selected radio_button
+# --- FUNCTION FOR INPUT TYPE DISPLAY DEPENDING ON THE SELECTED RADIO BUTTON --- #
 # it shows csv input when csv button is selected and mean and sd input when other type of data is selected
+# and it shows a single value constant input when constant vaue input radio button is selected
 input_type_selector <- function(input_choice, csv, m_sd, csv_tag, 
                                 csv_dist_tag, m_tag, sd_tag, m_val, sd_val, m_sd_dist_tag, const_tag, const_value, 
                                 dist_choices, selected_m_sd_distr, selected_csv_distr){
@@ -187,7 +174,7 @@ input_type_selector <- function(input_choice, csv, m_sd, csv_tag,
   }
 }
 
-# FUNCTION FOR INPUT TYPE DISPLAY DEPDENDING ON SELECTED METHOD BY RADIO BUTTONS
+# --- FUNCTION FOR INPUT TYPE DISPLAY FOR GROUND WATER HEIGHT DEPDENDING ON SELECTED METHOD BY RADIO BUTTONS --- #
 input_type_selector_gwh <- function(input_choice, csv, m_sd, csv_tag, 
                                 csv_dist_tag, m_tag, sd_tag, m_val, sd_val, m_sd_dist_tag, const_tag, const_value, 
                                 dist_choices, selected_m_sd_distr, selected_csv_distr){
@@ -212,7 +199,7 @@ input_type_selector_gwh <- function(input_choice, csv, m_sd, csv_tag,
 }
 
 
-
+# --- FUNCTION FOR INPUT TYPE DISPLAY FOR ITERATIONS NUMBER DEPDENDING ON SELECTED METHOD BY RADIO BUTTONS --- #
 input_type_selector_iter <- function(input_choice, slid, num, value){
   if (input_choice == slid) {
       sliderInput(inputId = value, label = "", value = 10000, min = 0, max = 100000, step = 5000)
@@ -222,13 +209,25 @@ input_type_selector_iter <- function(input_choice, slid, num, value){
   }
 }
 
-#RETURN RANDOM VARIABLE FROM CHOSEN DISTRIBUTION
+# --- RETURN RANDOM VARIABLE FROM CHOSEN DISTRIBUTION --- #
 dist_choice_final <- function(n, df, dist_type_csv, m, sd, dist_type_m_sd, constant_value, input_choice, csv, m_sd, constant){
   
+  # actions to be taken based on csv input choice 
   if (input_choice == csv){
+    infile <- df$datapath
+    
+    # if csv input type selected, load up the sample.csv file (for display purpose only)
+    # another csv can be loaded and this one will be overwritten
+    if (is.null(infile)) {
+      dpath <- "./sample.csv"
+    } else {
+      dpath <- infile
+    }
+    
+    df <- read.csv(dpath, header = F)$V1
+    
     req(df, dist_type_csv)
     
-    df <- read.csv(df$datapath, header = F)$V1
     df_mean <- mean(df)
     df_sd <- sd(df)
     dist_type <- dist_type_csv
@@ -265,6 +264,7 @@ dist_choice_final <- function(n, df, dist_type_csv, m, sd, dist_type_m_sd, const
     }
     
   }
+  # actions to be taken based on the mean and sd input choice
   else if (input_choice == m_sd){
     req(m, sd, dist_type_m_sd)
     df_mean <- m
@@ -304,13 +304,14 @@ dist_choice_final <- function(n, df, dist_type_csv, m, sd, dist_type_m_sd, const
     
     
   }
+  # actions to take if input choice is a constant
   else if (input_choice == constant){
     req(constant_value)
     return(constant_value)
   }
 }
 
-#FUNCTION FOR PLOTTING HISTOGRAM DISTRIBUTIONS FOR VARIABLES
+# --- FUNCTION FOR PLOTTING HISTOGRAM DISTRIBUTIONS FOR VARIABLES --- #
 hist_plot <- function(param_df, input_choice, dist_type_csv, dist_type_m_sd, csv, m_sd, constant, x_axis){
   req(param_df)
   param <- data.frame(x=param_df)
